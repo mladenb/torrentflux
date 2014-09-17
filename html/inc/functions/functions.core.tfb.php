@@ -118,10 +118,10 @@ function tfb_isValidTransfer($transfer) {
  * @return string
  */
 function tfb_clean_accents($inName) {
-	$outName = strtr($inName, 'àáâãäåòóôõöøèéêëçìíîïùúûüÿñ', 'aaaaaaooooooeeeeciiiiuuuuyn');
-	$outName = strtr($outName,'ÀÁÂÃÄÅÒÓÔÕÖØÈÉÊËÇÌÍÎÏÙÚÛÜŸÑ', 'AAAAAAOOOOOOEEEECIIIIUUUUYN');
-	$outName = str_replace("æ","ae",$outName);
-	$outName = str_replace("œ","oe",$outName);	
+	$outName = strtr($inName, 'Ã Ã¡Ã¢Ã£Ã¤Ã¥Ã²Ã³Ã´ÃµÃ¶Ã¸Ã¨Ã©ÃªÃ«Ã§Ã¬Ã­Ã®Ã¯Ã¹ÃºÃ»Ã¼Ã¿Ã±', 'aaaaaaooooooeeeeciiiiuuuuyn');
+	$outName = strtr($outName,'Ã€ÃÃ‚ÃƒÃ„Ã…Ã’Ã“Ã”Ã•Ã–Ã˜ÃˆÃ‰ÃŠÃ‹Ã‡ÃŒÃÃŽÃÃ™ÃšÃ›ÃœÅ¸Ã‘', 'AAAAAAOOOOOOEEEECIIIIUUUUYN');
+	$outName = str_replace("Ã¦","ae",$outName);
+	$outName = str_replace("Å“","oe",$outName);	
 	return $outName;
 }
 
@@ -224,7 +224,17 @@ function tfb_htmlencodekeepspaces($str) {
  */
 function tfb_shellencode($str) {
   $str = (string)$str;
-  return isset($str) && strlen($str) > 0 ? escapeshellarg($str) : "''";
+  return isset($str) && strlen($str) > 0 ? mb_escapeshellarg($str) : "''";
 }
 
-?>
+// http://markushedlund.com/dev-tech/php-escapeshellarg-with-unicodeutf-8-support
+// By default escapeshellarg will strip any unicode characters.
+// The code below is translated from the C source of PHP.
+function mb_escapeshellarg($arg)
+{
+	if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+		return '"' . str_replace(array('"', '%'), array('', ''), $arg) . '"';
+	} else {
+		return "'" . str_replace("'", "'\\''", $arg) . "'";
+	}
+}
